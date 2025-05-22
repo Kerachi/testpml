@@ -5,7 +5,10 @@ import joblib
 st.title("🌱 Voorspelling Elektriciteit, Productie en CO₂")
 
 # Laad model
-model = joblib.load("random_forest_model_py39.joblib")
+import pickle
+with open("random_forest_model.pkl", "rb") as f:
+    model = pickle.load(f)
+
 
 # Invoer
 temp = st.number_input("Gemiddelde temperatuur (°C)", value=15.0)
