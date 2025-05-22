@@ -12,10 +12,10 @@ def load_data():
 df = load_data()
 
 # 📊 Features en target kiezen
-X = df.drop(columns=["Prediction Electricity (kWh)", "Electricity (kWh)"])
-y = df["Prediction Electricity (kWh)"]
+X = df.drop(columns=["Electricity (kWh)"])
+y = df["Electricity (kWh)"]
 
-# 🎯 Model trainen met dezelfde instellingen
+# 🎯 Model trainen met vaste instellingen
 model = RandomForestRegressor(
     n_estimators=100,
     max_depth=None,
@@ -26,7 +26,7 @@ model.fit(X, y)
 
 # 🖼️ Streamlit UI
 st.title("🔌 Elektriciteitsverbruik Voorspeller")
-st.markdown("Model getraind op 'Prediction Electricity (kWh)' uit je dataset.")
+st.markdown("Model traint op 'Electricity (kWh)' uit de CSV.")
 
 # 📥 Invoer van gebruiker
 production = st.number_input("Productie (kg)", min_value=0.0, value=8.0)
@@ -42,15 +42,3 @@ if st.button("Voorspel Elektriciteit"):
                  "Windsnelheid (m/s)", "Neerslag (mm)", "Zonneschijn (uur)"])
     prediction = model.predict(input_df)[0]
     st.success(f"⚡ Voorspelde Elektriciteit: {prediction:.3f} kWh")
-
-    # 🔍 Toon oorspronkelijke waarde uit dataset (optioneel)
-    match = df[
-        (df["Production (kg)"] == production) &
-        (df["Gemiddelde temp (°C)"] == temp) &
-        (df["Windsnelheid (m/s)"] == wind) &
-        (df["Neerslag (mm)"] == rain) &
-        (df["Zonneschijn (uur)"] == sun)
-    ]
-    if not match.empty:
-        original = match.iloc[0]["Prediction Electricity (kWh)"]
-        st.info(f"📊 Oorspronkelijke voorspelling in dataset: {original:.3f} kWh")
