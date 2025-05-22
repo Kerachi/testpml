@@ -1,25 +1,29 @@
 import streamlit as st
-from pypmml import Model
 import pandas as pd
+import joblib
 
-st.title("🔮 PMML Voorspeller (RapidMiner model)")
+st.title("🌱 Voorspelling Elektriciteit, Productie en CO₂")
 
 # Laad model
-model = Model.load("test.pmml")
+model = joblib.load("random_forest_model.joblib")
 
-# Voorbeeld: verander invoervelden naar wat jouw model verwacht
-temperature = st.number_input("Temperatuur (°C)", value=20.0)
-sunlight = st.number_input("Zonuren", value=5.0)
-humidity = st.number_input("Luchtvochtigheid (%)", value=60.0)
+# Invoer
+temp = st.number_input("Gemiddelde temperatuur (°C)", value=15.0)
+wind = st.number_input("Windsnelheid (m/s)", value=4.0)
+rain = st.number_input("Neerslag (mm)", value=3.0)
+sun = st.number_input("Zonneschijn (uur)", value=5.0)
 
-# Input als DataFrame
-data = pd.DataFrame([{
-    "Temperature": temperature,
-    "Sunlight": sunlight,
-    "Humidity": humidity
+# Maak DataFrame
+df = pd.DataFrame([{
+    "Gemiddelde temp (°C)": temp,
+    "Windsnelheid (m/s)": wind,
+    "Neerslag (mm)": rain,
+    "Zonneschijn (uur)": sun
 }])
 
-# Voorspel knop
+# Voorspellen
 if st.button("Voorspel"):
-    prediction = model.predict(data)
-    st.success(f"Voorspelling: {prediction.iloc[0, -1]}")
+    prediction = model.predict(df)[0]
+    st.write(f"🔌 Elektriciteit (kWh): {prediction[0]:.2f}")
+    st.write(f"🥬 Productie (kg): {prediction[1]:.2f}")
+    st.write(f"🌫️ CO₂-uitstoot (kg): {prediction[2]:.2f}")
