@@ -1,32 +1,37 @@
 import streamlit as st
 import pandas as pd
-import joblib
+from sklearn.ensemble import RandomForestRegressor
 
-st.title("🌱 Voorspelling Elektriciteit, Productie en CO₂")
+st.title("🔌 Elektriciteit Voorspeller op Basis van Weer")
 
-# Laad model
-import pickle
-with open("random_forest_model.pkl", "rb") as f:
-    model = pickle.load(f)
+# 1. Laad dataset vanuit GitHub repo
+@st.cache_data
+def load_data():
+    url = "https://raw.githubusercontent.com/Kerachi/testpml/main/pmml-app/elektriciteit_trainingsdata.xlsx"
+    return pd.read_excel(url)
 
+df = load_data()
 
-# Invoer
-temp = st.number_input("Gemiddelde temperatuur (°C)", value=15.0)
-wind = st.number_input("Windsnelheid (m/s)", value=4.0)
-rain = st.number_input("Neerslag (mm)", value=3.0)
-sun = st.number_input("Zonneschijn (uur)", value=5.0)
+# 2. Splits data
+X = df.drop(columns="Prediction (kWh)")
+y = df["Prediction (kWh)"]
 
-# Maak DataFrame
-df = pd.DataFrame([{
-    "Gemiddelde temp (°C)": temp,
-    "Windsnelheid (m/s)": wind,
-    "Neerslag (mm)": rain,
-    "Zonneschijn (uur)": sun
-}])
+# 3. Train model in de app zelf (100% compatibel)
+model = RandomForestRegressor(n_estimators=100, random_state=42)
+model.fit(X, y)
 
-# Voorspellen
-if st.button("Voorspel"):
-    prediction = model.predict(df)[0]
-    st.write(f"🔌 Elektriciteit (kWh): {prediction[0]:.2f}")
-    st.write(f"🥬 Productie (kg): {prediction[1]:.2f}")
-    st.write(f"🌫️ CO₂-uitstoot (kg): {prediction[2]:.2f}")
+# 4. Gebruikersinvoer
+st.subheader("📥 Voer weersgegevens in")
+input_data = {
+    "Gemiddelde temp (°C)": st.number_input("Gemiddelde temperatuur", value=10.0),
+    "Windsnelheid (m/s)": st.number_input("Windsnelheid", value=4.0),
+    "Neerslag (mm)": st.number_input("Neerslag", value=3.0),
+    "Zonneschijn (uur)": st.number_input("Zonneschijn", value=5.0)
+}
+
+input_df = pd.DataFrame([input_data])
+
+# 5. Voorspelling
+if st.button("⚡ Voorspel Elektriciteit"):
+    prediction = model.predict(input_df)[0]
+    st.success(f"🔋 Voorspelde elektriciteit: {prediction:.2f} kWh")
