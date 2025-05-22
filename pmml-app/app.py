@@ -5,7 +5,7 @@ import joblib
 st.title("🌱 Voorspelling Elektriciteit, Productie en CO₂")
 
 # Laad model
-model = joblib.load("random_forest_model.joblib")
+model = joblib.load("random_forest_model_py39.joblib")
 
 # Invoer
 temp = st.number_input("Gemiddelde temperatuur (°C)", value=15.0)
